@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 
 from params import ShallowWaterParams
 from schemes import NLSESplitStepScheme
-from bathymetry import flat_bottom, add_initial_condition, gaussian, single_well, gaussian_well, moving_gaussian_well, \
-    moving_sine_wave, two_wells
+from bathymetry import flat_bottom, add_initial_condition, gaussian, single_well, gaussian_well, \
+    sine_wave, two_wells
 
 
 def init(params, initial_condition, history=True):
@@ -92,14 +92,14 @@ def plot_heatmap(eta, eta_0, x, t):
 
     # Left: Bathymetry
     im0 = axes[0].imshow(- eta_0_realised, aspect='auto', origin='lower')
-    axes[0].set_title('Surface Height')
+    axes[0].set_title('Bathymetry')
     axes[0].set_xlabel('x-index')
     axes[0].set_ylabel('t-index')
     fig.colorbar(im0, ax=axes[0])
 
     # Right: Surface Height
-    im1 = axes[1].imshow(eta, aspect='auto', origin='lower')
-    axes[1].set_title('Bathymetry')
+    im1 = axes[1].imshow(eta - eta_0_realised, aspect='auto', origin='lower')
+    axes[1].set_title('Surface Height')
     axes[1].set_xlabel('x-index')
     fig.colorbar(im1, ax=axes[1])
 
@@ -115,13 +115,13 @@ def main():
     params = ShallowWaterParams(T, L, nt, nx, 1.)
     scheme = NLSESplitStepScheme(params)
     # eta_0 = flat_bottom(1.)
-    # eta_0 = moving_gaussian_well(2., 1.5, L / 4, 1., 0.5)
-    # eta_0 = two_wells(2., 1.5, L/4, L/4 + 30, 1., 0.5)
-    # eta_0 = moving_gaussian_well(1.1, 1., L / 4, 1., 0.5)
-    # eta_0 = moving_sine_wave(0.05, 1., L, 5, 0.5)
-    # initial_condition = add_initial_condition(eta_0, gaussian(3 * L / 4, 1.))
+    # eta_0 = gaussian_well(2., 1.5, L / 4, 1., velocity=0.5)
+    # eta_0 = two_wells(2., 1.5, L/4, L/4 + 30, 1., velocity=0.5)
     eta_0 = gaussian_well(1.1, 1., L / 4, 1., velocity=0.5)
-    initial_condition = add_initial_condition(eta_0, lambda x: 0)
+    # eta_0 = sine_wave(0.05, 1., L, 5, velocity=0.5)
+    # initial_condition = add_initial_condition(eta_0, gaussian(3 * L / 4, 1.))
+    # eta_0 = gaussian_well(1.1, 1., L / 4, 1., velocity=0.5)
+    initial_condition = add_initial_condition(eta_0, lambda x: 0)  # Start from flat surface
     x, t, eta_0_realised, history = init(params, initial_condition)
     psi_0 = madelung_transform(eta_0_realised, 0.)  # Assuming starting from rest
     _ = scheme(psi_0, eta_0=eta_0, history=history)
