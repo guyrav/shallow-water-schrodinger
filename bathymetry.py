@@ -10,6 +10,16 @@ def moving(f):
     return ret
 
 
+def accelerating(f):
+    def ret(*args, **kwargs):
+        v_0 = kwargs.pop('v_0',0)
+        a = kwargs.pop('acceleration', 0)
+        b = f(*args, **kwargs)
+        return lambda x, t: b(x - v_0 * t - a / 2 * t**2, t)
+
+    return ret
+
+
 def flat_bottom(depth: float):
     return lambda x, t: depth * np.ones_like(x)
 
@@ -39,6 +49,12 @@ def sine_wave(A, offset, L, k):
 
     return ret
 
+@accelerating
+def accelerating_sine_wave(A, offset, L, k):
+    def ret(x, t):
+        return A * np.sin(2 * np.pi * k * x / L) + offset
+
+    return ret
 
 def add_initial_condition(bathymetry, initial_condition):
     return lambda x: bathymetry(x, 0) + initial_condition(x)
