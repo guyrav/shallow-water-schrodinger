@@ -51,7 +51,7 @@ def get_ylims(*args):
     return ylims
 
 
-def plot_evolution(t: np.ndarray[float], x: np.ndarray[float], eta_0, eta: np.ndarray[float], title: str):
+def plot_evolution(t: np.ndarray[float], x: np.ndarray[float], eta_0, eta: np.ndarray[float], u: np.ndarray[float], title: str):
     """Animate and plot the evolution of the solution over time.
 
     Args:
@@ -67,6 +67,7 @@ def plot_evolution(t: np.ndarray[float], x: np.ndarray[float], eta_0, eta: np.nd
 
     plt.plot(x, eta[0], 'k', label='Initial surface height')
     plt.plot(x, -eta_0(x, 0), 'r', label='Initial bottom height')
+    plt.plot(x, u[0], 'g', label='Initial horizontal velocity')
     plt.title(title)
     plt.legend(loc='best')
     plt.ylabel('velocity')
@@ -74,10 +75,11 @@ def plot_evolution(t: np.ndarray[float], x: np.ndarray[float], eta_0, eta: np.nd
     plt.ylim(ylims)
     plt.pause(0.5)
 
-    for t_n, eta_n, eta_0_n in zip(t, eta, eta_0_realised):
+    for t_n, eta_n, eta_0_n, u_n in zip(t, eta, eta_0_realised, u):
         plt.cla()
         plt.plot(x, eta_n, 'b', label=f'Time {t_n:.2f}')
         plt.plot(x, -eta_0_n, 'r', label='Bottom height')
+        plt.plot(x, u_n, 'g', label='Horizontal velocity')
         plt.title(title)
         plt.legend(loc='best')
         plt.ylabel('surface height')
@@ -122,7 +124,7 @@ def plot_heatmap(x, t, eta, eta_0, u=None):
 def main():
     T = 60
     L = 200
-    nt = 600
+    nt = 900
     nx = 200
     params = ShallowWaterParams(T, L, nt, nx, 1.)
     scheme = NLSESplitStepScheme(params)
@@ -133,14 +135,14 @@ def main():
     # eta_0 = sine_wave(0.05, 1., L, 5, velocity=0.5)
     # initial_condition = add_initial_condition(eta_0, gaussian(3 * L / 4, 1.))
     # eta_0 = gaussian_well(1.1, 1., L / 4, 1., velocity=0.5)
-    eta_0 = accelerating_gaussian(1.1, 1., L/4, 1., 0., 0.03)
+    eta_0 = accelerating_gaussian(1.1, 1., L/10, 1., 0., 0.1)
     initial_condition = add_initial_condition(eta_0, lambda x: 0)  # Start from flat surface
     x, t, eta_0_realised, history = init(params, initial_condition)
     psi_0 = madelung_transform(eta_0_realised, 0.)  # Assuming starting from rest
     _ = scheme(psi_0, eta_0=eta_0, history=history)
 
     eta, u = inverse_madelung_transform(history, nx, params.dx)
-    # plot_evolution(t, x, eta_0, eta, "Surface height evolution with flat bottom and initial gaussian")
+    # plot_evolution(t, x, eta_0, eta, u, "Surface height evolution with flat bottom and initial gaussian")
     plot_heatmap(x, t, eta, eta_0, u)
 
 
