@@ -1,6 +1,15 @@
 import numpy as np
 
 
+def moving(f):
+    def ret(*args, **kwargs):
+        v = kwargs.pop('velocity', 0)
+        b = f(*args, **kwargs)
+        return lambda x, t: b(x - v * t, t)
+
+    return ret
+
+
 def flat_bottom(depth: float):
     return lambda x, t: depth * np.ones_like(x)
 
@@ -9,6 +18,7 @@ def single_well(min_depth: float, max_depth: float, position, width):
     return lambda x, t: min_depth + (max_depth - min_depth) * np.logical_and(x - position < width / 2, x - position > -width / 2)
 
 
+@moving
 def gaussian_well(min_depth: float, max_depth: float, position, sigma):
     return lambda x, t: min_depth + (max_depth - min_depth) * np.exp(- (x - position) ** 2 / (2 * sigma ** 2))
 

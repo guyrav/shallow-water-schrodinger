@@ -90,16 +90,16 @@ def plot_heatmap(eta, eta_0, x, t):
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True)
 
-    # Left: f
-    im0 = axes[0].imshow(eta, aspect='auto', origin='lower')
-    axes[0].set_title('f')
+    # Left: Bathymetry
+    im0 = axes[0].imshow(- eta_0_realised, aspect='auto', origin='lower')
+    axes[0].set_title('Surface Height')
     axes[0].set_xlabel('x-index')
     axes[0].set_ylabel('t-index')
     fig.colorbar(im0, ax=axes[0])
 
-    # Right: g
-    im1 = axes[1].imshow(-eta_0_realised, aspect='auto', origin='lower')
-    axes[1].set_title('g')
+    # Right: Surface Height
+    im1 = axes[1].imshow(eta, aspect='auto', origin='lower')
+    axes[1].set_title('Bathymetry')
     axes[1].set_xlabel('x-index')
     fig.colorbar(im1, ax=axes[1])
 
@@ -116,10 +116,11 @@ def main():
     scheme = NLSESplitStepScheme(params)
     # eta_0 = flat_bottom(1.)
     # eta_0 = moving_gaussian_well(2., 1.5, L / 4, 1., 0.5)
-    eta_0 = two_wells(2., 1.5, L/4, L/4 + 30, 1., 0.5)
+    # eta_0 = two_wells(2., 1.5, L/4, L/4 + 30, 1., 0.5)
     # eta_0 = moving_gaussian_well(1.1, 1., L / 4, 1., 0.5)
     # eta_0 = moving_sine_wave(0.05, 1., L, 5, 0.5)
     # initial_condition = add_initial_condition(eta_0, gaussian(3 * L / 4, 1.))
+    eta_0 = gaussian_well(1.1, 1., L / 4, 1., velocity=0.5)
     initial_condition = add_initial_condition(eta_0, lambda x: 0)
     x, t, eta_0_realised, history = init(params, initial_condition)
     psi_0 = madelung_transform(eta_0_realised, 0.)  # Assuming starting from rest
