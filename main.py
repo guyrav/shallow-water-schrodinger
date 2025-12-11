@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from params import ShallowWaterParams
 from schemes import NLSESplitStepScheme
 from bathymetry import flat_bottom, add_initial_condition, gaussian, single_well, gaussian_well, \
-    sine_wave, two_wells, accelerating_sine_wave
+    sine_wave, two_wells, accelerating_sine_wave, two_diff_wells, acc_two_diff_wells
 
 
 def init(params, initial_condition, history=True):
@@ -130,7 +130,7 @@ def main():
     scheme = NLSESplitStepScheme(params)
     # eta_0 = flat_bottom(1.)
     # eta_0 = gaussian_well(2., 1.5, L / 4, 1., velocity=0.5)
-    eta_0 = two_wells(2., 1.5, L/4, L/4 + 30, 1., velocity=0.5)
+    eta_0 = acc_two_diff_wells(2., 1.25, 2., 1.75, L/4, L/4 + 30, 1., v_0=0., acceleration = 0.1)
     # eta_0 = gaussian_well(1.1, 1., L / 4, 1., velocity=0.5)
     # eta_0 = sine_wave(0.1, 1., L, 5, velocity=0.5)
     # initial_condition = add_initial_condition(eta_0, gaussian(3 * L / 4, 1.))

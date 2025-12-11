@@ -41,6 +41,20 @@ def two_wells(min_depth: float, max_depth: float, position1, position2, sigma):
 
     return ret
 
+@moving
+def two_diff_wells(min_depth1: float, max_depth1: float, min_depth2: float, max_depth2: float, position1, position2, sigma):
+    def ret(x, t):
+        return gaussian_well(min_depth1, max_depth1, position1, sigma)(x, t) + gaussian_well(min_depth2, max_depth2, position2, sigma)(x, t) - max(max_depth1, max_depth2)
+
+    return ret
+
+
+@accelerating
+def acc_two_diff_wells(min_depth1: float, max_depth1: float, min_depth2: float, max_depth2: float, position1, position2, sigma):
+    def ret(x, t):
+        return gaussian_well(min_depth1, max_depth1, position1, sigma)(x, t) + gaussian_well(min_depth2, max_depth2, position2, sigma)(x, t) - max(max_depth1, max_depth2)
+
+    return ret
 
 @moving
 def sine_wave(A, offset, L, k):
