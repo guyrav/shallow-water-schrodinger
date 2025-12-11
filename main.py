@@ -90,7 +90,7 @@ def plot_evolution(t: np.ndarray[float], x: np.ndarray[float], eta_0, eta: np.nd
     plt.show()
 
 
-def plot_heatmap(x, t, eta, eta_0, u=None):
+def plot_heatmap(x, t, eta, eta_0, lims, u=None):
     eta_0_realised = eta_0(np.reshape(x, (1,) + x.shape), np.reshape(t, t.shape + (1,)))
 
     ncols = 3 if u is not None else 2
@@ -101,12 +101,14 @@ def plot_heatmap(x, t, eta, eta_0, u=None):
     axes[0].set_title('Bathymetry')
     axes[0].set_xlabel('x-index')
     axes[0].set_ylabel('t-index')
+    axes[0].set_xlim(lims)
     fig.colorbar(im0, ax=axes[0])
 
     # Right/middle: Surface Height
     im1 = axes[1].imshow(eta - eta_0_realised, aspect='auto', origin='lower')
     axes[1].set_title('Surface Height')
     axes[1].set_xlabel('x-index')
+    axes[1].set_xlim(lims)
     fig.colorbar(im1, ax=axes[1])
 
     if u is not None:
@@ -114,6 +116,7 @@ def plot_heatmap(x, t, eta, eta_0, u=None):
         im1 = axes[2].imshow(u, aspect='auto', origin='lower')
         axes[2].set_title('Horizontal Velocity')
         axes[2].set_xlabel('x-index')
+        axes[2].set_xlim(lims)
         fig.colorbar(im1, ax=axes[2])
 
 
@@ -122,15 +125,15 @@ def plot_heatmap(x, t, eta, eta_0, u=None):
 
 
 def main():
-    T = 60
+    T = 20
     L = 200
-    nt = 900
-    nx = 200
+    nt = 300
+    nx = 400
     params = ShallowWaterParams(T, L, nt, nx, 1.)
     scheme = NLSESplitStepScheme(params)
     # eta_0 = flat_bottom(1.)
     # eta_0 = gaussian_well(2., 1.5, L / 4, 1., velocity=0.5)
-    eta_0 = acc_two_diff_wells(2., 1.25, 2., 1.75, L/4, L/4 + 30, 1., v_0=0., acceleration = 0.1)
+    eta_0 = two_diff_wells(2., 1.75, 2., 1.25, L/4, L/4 + 30, 1., velocity=0.5)
     # eta_0 = gaussian_well(1.1, 1., L / 4, 1., velocity=0.5)
     # eta_0 = sine_wave(0.1, 1., L, 5, velocity=0.5)
     # initial_condition = add_initial_condition(eta_0, gaussian(3 * L / 4, 1.))
@@ -144,7 +147,7 @@ def main():
 
     eta, u = inverse_madelung_transform(history, nx, params.dx)
     # plot_evolution(t, x, eta_0, eta, u, "Surface height evolution with flat bottom and initial gaussian")
-    plot_heatmap(x, t, eta, eta_0, u)
+    plot_heatmap(x, t, eta, eta_0, [75,175], u)
 
 
 if __name__ == '__main__':
